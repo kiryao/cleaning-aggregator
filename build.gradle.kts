@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.0.10"
+    kotlin("jvm") apply false
 }
 
 group = "ru.otus.otuskotlin.cleaningaggregator"
