@@ -1,0 +1,150 @@
+# Минимальная версия инфраструктуры на базе
+# OpenSearch - хранилище логов и метрик
+# OpenSearch Dashboards - отрисовка логов
+# Fluent Bit - служба сбора логов
+# Envoy - прокси
+# Keycloak - сервер идентификации
+
+# Приложение доступно по http://localhost:8080 (envoy прокси)
+# Панели мониторинга http://localhost:5601 (opensearch dashboards, kibana)
+# Управление пользователями http://localhost:8081 (keycloak)
+
+services:
+  app:
+    image: nginx:1.27-alpine
+    container_name: app
+    depends_on:
+      - fluent-bit
+      - envoy
+    volumes:
+      - ./volumes/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./volumes/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./volumes/nginx/html:/usr/share/nginx/html
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:${FLUENT_BIT_PORT}
+        tag: app.logs
+
+  fluent-bit:
+    container_name: fluent-bit
+    image: fluent/fluent-bit
+    ports:
+      - "${FLUENT_BIT_PORT}:${FLUENT_BIT_PORT}"
+      - "${FLUENT_BIT_PORT}:${FLUENT_BIT_PORT}/udp"
+      - "2020:2020"
+    environment:
+      - opensearch_host=opensearch
+      - opensearch_user=${OPENSEARCH_USER}
+      - opensearch_pass=${OPENSEARCH_PASS}
+    volumes:
+      - ./volumes/fluent-bit-etc/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./volumes/fluent-bit-etc/parsers.conf:/fluent-bit/etc/parsers.conf
+
+  opensearch:
+    container_name: opensearch
+    image: opensearchproject/opensearch:latest
+    environment:
+      - discovery.type=single-node
+      - http.port=${OPENSEARCH_PORT}
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_PASS}
+    ports:
+      - "${OPENSEARCH_PORT}:${OPENSEARCH_PORT}"
+      - "9600:9600"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+
+  dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboards
+    ports:
+      - "5601:5601"
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch:${OPENSEARCH_PORT}"]'
+    depends_on:
+      - opensearch
+
+  envoy:
+    image: envoyproxy/envoy:v1.30.0
+    container_name: envoy
+    volumes:
+      - ./volumes/envoy/envoy.yaml:/etc/envoy/envoy.yaml
+    ports:
+      - "${ENVOY_PORT}:${ENVOY_PORT}"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    container_name: db
+    ports:
+      - "${HOST_POSTGRES_PORT}:${CONTAINER_POSTGRES_PORT}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.1
+    container_name: keycloak
+    volumes:
+      - ./volumes/keycloak/import:/opt/keycloak/data/import
+    ports:
+      - "${HOST_KEYCLOAK_PORT}:${CONTAINER_KEYCLOAK_PORT}"
+      - "9000:9000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      DB_VENDOR: POSTGRES
+      DB_ADDR: db
+      DB_DATABASE: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_HOSTNAME: keycloak
+      KC_HEALTH_ENABLED: true
+      KC_HOSTNAME_URL: "http://localhost:${HOST_KEYCLOAK_PORT}/"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    command:
+      - start-dev
+      - --import-realm
+      - --proxy-headers=forwarded
+      - --hostname-strict=false
+
+volumes:
+  opensearch-data:
+  postgres-data:
+
+networks:
+  default:
+    name: cleaning-aggregator-network
