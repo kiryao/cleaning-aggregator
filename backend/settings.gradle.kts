@@ -27,3 +27,4 @@ plugins {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":api-v1-kmp")
+include(":common")
