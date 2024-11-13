@@ -1,0 +1,631 @@
+openapi: '3.0.3'
+info:
+  title: Cleaning Aggregator ${VERSION_APP}
+  description: |
+    Агрегатор клининговых услуг предоставляет заказчикам
+    возможность размещать заявки на уборку,
+    а исполнителям откликаться на эти заявки.
+  version: '1.0.0'
+  contact:
+    url: https://t.me/kgubenko
+
+servers:
+  - url: http://localhost:8080/v1
+
+tags:
+  - name: order
+    description: Заказ на услугу клининга
+
+paths:
+  /order/create:
+    post:
+      tags:
+        - order
+      summary: Создать черновик заказ
+      operationId: orderCreate
+      requestBody:
+        description: |
+          Роль `customer`. Создаёт заказ в статусе `draft`.<br>
+          В UI это будет страница после создания заказа,
+          где пользователь может через `/order/update` обновить заказ.<br>
+          Или через `/order/publish` перевести заказ в статус `published`
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+      responses:
+        '200':
+          description: Черновик заказа успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreateResponse'
+  
+  /order/read:
+    post:
+      tags:
+        - order
+      summary: Посмотреть заказ
+      operationId: orderRead
+      requestBody:
+        description: Роль `customer` и `executor`. Просмотр данных заказа
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderReadRequest'
+      responses:
+        '200':
+          description: Заказ успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderReadResponse'
+
+  /order/update:
+    post:
+      tags:
+        - order
+      summary: Обновить черновик заказ
+      operationId: orderUpdate
+      requestBody:
+        description: Роль `customer`. Обновление заказа в статусе `draft`
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderUpdateRequest'
+      responses:
+        '200':
+          description: Черновик заказ успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderUpdateResponse'
+
+  /order/delete:
+    post:
+      tags:
+        - order
+      summary: Удалить черновик заказ
+      operationId: orderDelete
+      requestBody:
+        description: Роль `customer`. Удаление заказа в статусе `draft`
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDeleteRequest'
+      responses:
+        '200':
+          description: Черновик заказа успешно удален
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDeleteResponse'
+
+  /order/publish:
+    post:
+      tags:
+        - order
+      summary: Опубликовать заказ
+      operationId: orderPublish
+      requestBody:
+        description: Роль `customer`. Перевод заказа из статуса `draft` в статус `published`
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPublishRequest'
+      responses:
+        '200':
+          description: Заказ успешно опубликован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderPublishResponse'
+
+  /order/respond:
+    post:
+      tags:
+        - order
+      summary: Откликнуться на заказ
+      operationId: orderRespond
+      requestBody:
+        description: Роль `executor`. Переводит заказ из статуса `published` в статус `responded`
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRespondRequest'
+      responses:
+        '200':
+          description: Отклик на заказ успешно совершен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderRespondResponse'
+
+  /order/search:
+    post:
+      tags:
+        - order
+      summary: Поиск заказов
+      operationId: orderSearch
+      requestBody:
+        description: Поиск заказов по параметрам
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderSearchRequest'
+      responses:
+        '200':
+          description: Список заказов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderSearchResponse'
+
+components:
+  schemas:
+    IRequest:
+      type: object
+      description: Базовый интерфейс для всех запросов
+      properties:
+        requestType:
+          type: string
+          description: Поле-дескриминатор для вычисления типа запроса
+          example: create
+      discriminator:
+        propertyName: requestType
+        mapping:
+          create:   '#/components/schemas/OrderCreateRequest'
+          read:     '#/components/schemas/OrderReadRequest'
+          update:   '#/components/schemas/OrderUpdateRequest'
+          delete:   '#/components/schemas/OrderDeleteRequest'
+          publish:  '#/components/schemas/OrderPublishRequest'
+          respond:  '#/components/schemas/OrderRespondRequest'
+          search:   '#/components/schemas/OrderSearchRequest'
+
+    IResponse:
+      type: object
+      description: "Базовый интерфейс для всех ответов"
+      properties:
+        responseType:
+          type: string
+          description: "Поле-дескриминатор для вычисления типа запроса"
+          example: create
+        result:
+          $ref: '#/components/schemas/ResponseResult'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+      discriminator:
+        propertyName: responseType
+        mapping:
+          create:   '#/components/schemas/OrderCreateResponse'
+          read:     '#/components/schemas/OrderReadResponse'
+          update:   '#/components/schemas/OrderUpdateResponse'
+          delete:   '#/components/schemas/OrderDeleteResponse'
+          publish:  '#/components/schemas/OrderPublishResponse'
+          respond:  '#/components/schemas/OrderRespondResponse'
+          search:   '#/components/schemas/OrderSearchResponse'
+
+    Error:
+      type: object
+      properties:
+        group:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+        field:
+          type: string
+  
+    ResponseResult:
+      type: string
+      enum: [success, error]
+
+    OrderId:
+      type: string
+      description: "Уникальный идентификатор заказа"
+
+    CustomerId:
+      type: string
+      description: "Идентификатор заказчика"
+    
+    ExecutorId:
+      type: string
+      description: "Идентификатор исполнителя"
+    
+    OrderLock:
+      type: string
+      description: "Версия оптимистичной блокировки"
+
+    CleaningType:
+      type: string
+      enum: [general, maintenance]
+      description: "Тип уборки"
+    
+    OrderMetadata:
+      type: object
+      description: "Метаданные о заказе"
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: "Дата и время создания заказа"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Дата и время последнего обновления заказа"
+        publishedAt:
+          type: string
+          format: date-time
+          description: "Дата и время публикации заказа"
+        respondedAt:
+          type: string
+          format: date-time
+          description: "Дата и время получения отклика"
+        deletedAt:
+          type: string
+          format: date-time
+          description: "Дата и время удаления заказа"
+
+    OrderStatus:
+      type: string
+      enum:
+        - draft
+        - published
+        - responded
+        - deleted
+      description: |
+        Статус заказа в системе:
+        - `draft` - черновик
+        - `published` - опубликован и ожидает отклика  
+        - `responded` - заказ получил отклик
+        - `deleted` - заказ удалён
+
+    OrderPermissions:
+      type: string
+      description: Используется клиентом для отображения доступых операций над заказом в UI
+      enum:
+        - create
+        - read
+        - update
+        - delete
+        - publish
+        - respond
+
+    OrderCost:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: "Сумма в виде строки для точного представления"
+        currency:
+          type: string
+          description: "Код валюты в формате ISO 4217"
+          example: RUB
+      description: "Стоимость заказа рассчитывается в зависимости от типа уборки"
+
+    OrderAddress:
+      type: object
+      properties:
+        city:
+          type: string
+          description: "Город"
+        street:
+          type: string
+          description: "Улица"
+        house:
+          type: string
+          description: "Номер дома"
+        apartment:
+          type: string
+          description: "Номер квартиры"
+        floor:
+          type: integer
+          description: "Этаж"
+        entranceNumber:
+          type: string
+          description: "Номер подъезда"
+      description: "Адрес уборки"
+
+    BaseOrder:
+      type: object
+      description: "Объект описывает базовые свойства заказа для `create` и `update` запросов"
+      properties:
+        description:
+          type: string
+          description: "Описание заказа"
+        cleaningType:
+          $ref: '#/components/schemas/CleaningType'
+          description: "Тип уборки"
+        sheduledFor:
+          type: string
+          format: date-time
+          description: "Запланированная дата и время уборки"
+        specialRequirements:
+          type: string
+          description: "Специальные требования к заказу"
+        address:
+          $ref: '#/components/schemas/OrderAddress'
+          description: "Адрес уборки"
+
+    # ==================== REQUEST ====================
+
+    OrderCreateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseOrder'
+    OrderCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/OrderRequestDebug'
+        - type: object
+          properties:
+            order:
+              $ref: '#/components/schemas/OrderCreateObject'
+    
+    OrderUpdateObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseOrder'
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/OrderId'
+            lock:
+              $ref: '#/components/schemas/OrderLock'
+    OrderUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/OrderRequestDebug'
+        - type: object
+          properties:
+            order:
+              $ref: '#/components/schemas/OrderUpdateObject'
+
+    OrderReadObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/OrderId'
+    OrderReadRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/OrderRequestDebug'
+        - type: object
+          properties:
+            order:
+              $ref: '#/components/schemas/OrderReadObject'
+    
+    OrderDeleteObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/OrderId'
+            lock:
+              $ref: '#/components/schemas/OrderLock'
+    OrderDeleteRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/OrderRequestDebug'
+        - type: object
+          properties:
+            order:
+              $ref: '#/components/schemas/OrderDeleteObject'
+
+    OrderPublishObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/OrderId'
+            lock:
+              $ref: '#/components/schemas/OrderLock'
+    OrderPublishRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/OrderRequestDebug'
+        - type: object
+          properties:
+            order:
+              $ref: '#/components/schemas/OrderPublishObject'
+
+    OrderRespondObject:
+      allOf:
+        - type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/OrderId'
+            lock:
+              $ref: '#/components/schemas/OrderLock'
+            executorId:
+              $ref: '#/components/schemas/ExecutorId'
+    OrderRespondRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/OrderRequestDebug'
+        - type: object
+          properties:
+            order:
+              $ref: '#/components/schemas/OrderRespondObject'
+
+    OrderSearchFilter:
+      type: object
+      properties:
+        cleaningType:
+          $ref: '#/components/schemas/CleaningType'
+        dateRange:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+        locationRange:
+          type: object
+          properties:
+            city:
+              type: string
+              description: "Город"
+            street:
+              type: string
+              description: "Улица"
+            house:
+              type: string
+              description: "Номер дома"
+            radius:
+              type: number
+              format: double
+              description: "Радиус поиска в километрах от указанной локации"
+    
+    OrderSearchRequest:
+      allOf:
+        - $ref: '#/components/schemas/IRequest'
+        - $ref: '#/components/schemas/OrderRequestDebug'
+        - type: object
+          properties:
+            orderFilter:
+              $ref: '#/components/schemas/OrderSearchFilter'
+
+    # ==================== RESPONSE ====================
+    
+    OrderResponseObject:
+      allOf:
+        - $ref: '#/components/schemas/BaseOrder'
+        - type: object
+          description: Объект, который возвращается в ответе от бэкенда
+          properties:
+            id:
+              $ref: '#/components/schemas/OrderId'
+            title:
+              type: string
+              description: Заголовок заказа формата `<тип уборки> в <город>`
+            cost:
+              $ref: '#/components/schemas/OrderCost'
+            customerId:
+              $ref: '#/components/schemas/CustomerId'
+            executorId:
+              $ref: '#/components/schemas/ExecutorId'
+            permissions:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/OrderPermissions'
+            status:
+              $ref: '#/components/schemas/OrderStatus'
+            metadata:
+              $ref: '#/components/schemas/OrderMetadata'
+            lock:
+              $ref: '#/components/schemas/OrderLock'
+    
+    OrderResponseSingle:
+      allOf:
+        - type: object
+          description: "Ответ с одним объектом заказа"
+          properties:
+            order:
+              $ref: '#/components/schemas/OrderResponseObject'
+
+    OrderResponseMulti:
+      allOf:
+        - type: object
+          description: "Список найденных объектов заказа"
+          properties:
+            orders:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderResponseObject'
+
+    OrderCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/OrderResponseSingle'
+    
+    OrderReadResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/OrderResponseSingle'
+    
+    OrderUpdateResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/OrderResponseSingle'
+
+    OrderDeleteResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/OrderResponseSingle'
+      
+    OrderPublishResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/OrderResponseSingle'
+
+    OrderRespondResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/OrderResponseSingle'
+
+    OrderSearchResponse:
+      allOf:
+        - $ref: '#/components/schemas/IResponse'
+        - $ref: '#/components/schemas/OrderResponseMulti'
+
+    # ==================== STUBS ====================
+
+    OrderRequestDebug:
+      type: object
+      properties:
+        debug:
+          $ref: '#/components/schemas/OrderDebug'
+
+    OrderDebug:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/OrderRequestDebugMode'
+        stub:
+          $ref: '#/components/schemas/OrderRequestDebugStubs'
+
+    OrderRequestDebugMode:
+      type: string
+      enum: [prod, test, stub]
+
+    OrderRequestDebugStubs:
+      type: string
+      description: "Перечисление стабов"
+      enum:
+        # Успешные сценарии
+        - success
+        # Ошибки валидации
+        - bad_id
+        - bad_cleaning_type
+        - bad_scheduled_date
+        - bad_description
+        - bad_special_requirements
+        - bad_address
+        # Ошибки поиска
+        - bad_search_cleaning_type
+        - bad_search_radius
+        - bad_date_range
+        # Ошибки состояния
+        - order_not_found
+        - order_already_published
+        - order_already_responded
+        - order_already_deleted
+        # Ошибки доступа
+        - not_enough_permissions
+        # Ошибки блокировки
+        - bad_lock_version
+        # Системные ошибки
+        - database_error
