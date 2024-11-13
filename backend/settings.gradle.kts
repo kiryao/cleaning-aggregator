@@ -26,4 +26,4 @@ plugins {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include("tmp")
+include(":api-v1-kmp")
