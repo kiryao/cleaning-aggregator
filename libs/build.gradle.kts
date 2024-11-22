@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
 }
 
-group = "ru.otus.otuskotlin.cleaningaggregator"
+group = "ru.otus.otuskotlin.cleaningaggregator.libs"
 version = "0.0.1"
 
 allprojects {
@@ -20,14 +20,13 @@ subprojects {
 ext {
     val specDir = layout.projectDirectory.dir("../specs")
     set("spec-v1", specDir.file("api-v1.yaml").toString())
-    set("spec-log", specDir.file("api-log.yaml").toString())
 }
 
 tasks {
-    arrayOf("build", "clean", "check").forEach { tsk ->
+    arrayOf("build", "clean", "check").forEach {tsk ->
         create(tsk) {
             group = "build"
-            dependsOn(subprojects.map { it.getTasksByName(tsk,false) })
+            dependsOn(subprojects.map {  it.getTasksByName(tsk,false)})
         }
     }
 }

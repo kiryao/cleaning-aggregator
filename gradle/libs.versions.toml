@@ -3,10 +3,17 @@ kotlin = "2.0.21"
 
 kotlinx-datetime = "0.5.0"
 kotlinx-serialization = "1.6.3"
+coroutines = "1.9.0"
 
 binaryCompabilityValidator = "0.13.2"
 
 bignum = "0.3.10"
+
+logback = "1.5.3"
+logback-appenders = "1.8.8"
+logback-logstash = "7.4"
+kermit = "2.0.3"
+logger-fluentd = "0.3.4"
 
 # BASE
 jvm-compiler = "17"
@@ -19,6 +26,15 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 bignum = { module = "com.ionspin.kotlin:bignum", version.ref = "bignum" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+# Logging
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+logback-appenders = { module = "com.sndyuk:logback-more-appenders", version.ref = "logback-appenders" }
+logback-logstash = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logback-logstash" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+logger-fluentd = { module = "org.fluentd:fluent-logger", version.ref = "logger-fluentd" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

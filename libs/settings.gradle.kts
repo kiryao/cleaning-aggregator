@@ -1,4 +1,4 @@
-rootProject.name = "cleaning-aggregator-backend"
+rootProject.name = "cleaning-aggregator-libs"
 
 dependencyResolutionManagement {
     versionCatalogs {
@@ -21,11 +21,9 @@ pluginManagement {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-include(":common")
-include(":api-v1-kmp")
-include(":api-log")
+include(":lib-logging-common")
+include(":lib-logging-logback")
+include(":lib-logging-kermit")
