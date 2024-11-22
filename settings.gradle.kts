@@ -3,5 +3,5 @@ plugins {
 }
 rootProject.name = "cleaning-aggregator"
 
-includeBuild("lessons")
 includeBuild("backend")
+includeBuild("libs")
