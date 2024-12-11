@@ -32,3 +32,5 @@ include(":api-log")
 
 include(":biz")
 include(":stubs")
+
+include(":app-common")
