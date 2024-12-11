@@ -29,3 +29,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":common")
 include(":api-v1-kmp")
 include(":api-log")
+
+include(":stubs")
