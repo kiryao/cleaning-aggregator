@@ -30,4 +30,5 @@ include(":common")
 include(":api-v1-kmp")
 include(":api-log")
 
+include(":biz")
 include(":stubs")
