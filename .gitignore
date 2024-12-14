@@ -5,6 +5,7 @@
 
 ### IntelliJ IDEA ###
 /.idea/
+/.gigaide/
 *.iml
 **/out/
 !**/src/**/out/

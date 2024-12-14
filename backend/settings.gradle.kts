@@ -29,3 +29,9 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":common")
 include(":api-v1-kmp")
 include(":api-log")
+
+include(":biz")
+include(":stubs")
+
+include(":app-common")
+include(":app-spring")

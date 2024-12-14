@@ -345,7 +345,6 @@ components:
           description: "Описание заказа"
         cleaningType:
           $ref: '#/components/schemas/CleaningType'
-          description: "Тип уборки"
         sheduledFor:
           type: string
           format: date-time
@@ -355,7 +354,6 @@ components:
           description: "Специальные требования к заказу"
         address:
           $ref: '#/components/schemas/OrderAddress'
-          description: "Адрес уборки"
 
     # ==================== REQUEST ====================
 
@@ -460,33 +458,9 @@ components:
     OrderSearchFilter:
       type: object
       properties:
-        cleaningType:
-          $ref: '#/components/schemas/CleaningType'
-        dateRange:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-        locationRange:
-          type: object
-          properties:
-            city:
-              type: string
-              description: "Город"
-            street:
-              type: string
-              description: "Улица"
-            house:
-              type: string
-              description: "Номер дома"
-            radius:
-              type: number
-              format: double
-              description: "Радиус поиска в километрах от указанной локации"
+        searchString:
+          type: string
+          description: Поисковая строка, которая будет искаться в заказах
     
     OrderSearchRequest:
       allOf:
@@ -615,9 +589,7 @@ components:
         - bad_special_requirements
         - bad_address
         # Ошибки поиска
-        - bad_search_cleaning_type
-        - bad_search_radius
-        - bad_date_range
+        - bad_search_string
         # Ошибки состояния
         - order_not_found
         - order_already_published
