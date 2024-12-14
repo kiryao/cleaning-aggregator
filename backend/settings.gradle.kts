@@ -34,3 +34,4 @@ include(":biz")
 include(":stubs")
 
 include(":app-common")
+include(":app-spring")
