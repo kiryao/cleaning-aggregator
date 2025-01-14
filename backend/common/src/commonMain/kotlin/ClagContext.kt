@@ -2,7 +2,6 @@ package ru.otus.otuskotlin.cleaningaggregator.common
 
 import kotlinx.datetime.Instant
 import ru.otus.otuskotlin.cleaningaggregator.common.models.*
-import ru.otus.otuskotlin.cleaningaggregator.common.models.filter.ClagOrderFilter
 import ru.otus.otuskotlin.cleaningaggregator.common.stubs.ClagStubs
 
 data class ClagContext (

@@ -18,17 +18,7 @@ class MapperSearchTest {
                 stub = OrderRequestDebugStubs.SUCCESS
             ),
             orderFilter = OrderSearchFilter(
-                cleaningType = CleaningType.MAINTENANCE,
-                dateRange = OrderSearchFilterDateRange(
-                    start = "2022-01-01T00:00:00Z",
-                    end = "2022-01-02T00:00:00Z"
-                ),
-                locationRange = OrderSearchFilterLocationRange(
-                    city = "city",
-                    street = "street",
-                    house = "house",
-                    radius = 5.0
-                )
+                searchString = "test"
             )
         )
 
@@ -36,16 +26,7 @@ class MapperSearchTest {
         context.fromTransport(req)
 
         assertEquals(ClagStubs.SUCCESS, context.stubCase)
-
-        assertEquals(ClagCleaningType.MAINTENANCE, context.orderFilterRequest.cleaningType)
-
-        assertEquals(Instant.parse("2022-01-01T00:00:00Z"), context.orderFilterRequest.dateRange.start)
-        assertEquals(Instant.parse("2022-01-02T00:00:00Z"), context.orderFilterRequest.dateRange.end)
-
-        assertEquals("city", context.orderFilterRequest.locationRange.city)
-        assertEquals("street", context.orderFilterRequest.locationRange.street)
-        assertEquals("house", context.orderFilterRequest.locationRange.house)
-        assertEquals(5.0, context.orderFilterRequest.locationRange.radius)
+        assertEquals("test", context.orderFilterRequest.searchString)
     }
 
     @Test

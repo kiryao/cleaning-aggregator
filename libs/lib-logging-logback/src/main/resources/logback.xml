@@ -57,8 +57,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <root>
-        <level>${LOG_COMMON_LEVEL}</level>
+    <root level="${LOG_COMMON_LEVEL}">
         <appender-ref ref="fluentd"/>
         <appender-ref ref="STDOUT"/>
     </root>

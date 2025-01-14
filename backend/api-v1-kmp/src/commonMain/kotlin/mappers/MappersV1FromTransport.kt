@@ -3,7 +3,6 @@ package ru.otus.otuskotlin.cleaningaggregator.api.v1.mappers
 import ru.otus.otuskotlin.cleaningaggregator.api.v1.models.*
 import ru.otus.otuskotlin.cleaningaggregator.common.ClagContext
 import ru.otus.otuskotlin.cleaningaggregator.common.models.*
-import ru.otus.otuskotlin.cleaningaggregator.common.models.filter.*
 import ru.otus.otuskotlin.cleaningaggregator.common.models.ClagWorkMode
 import ru.otus.otuskotlin.cleaningaggregator.common.stubs.ClagStubs
 import kotlinx.datetime.Instant
@@ -96,9 +95,7 @@ private fun OrderDebug?.transportToStubCase(): ClagStubs = when (this?.stub) {
     OrderRequestDebugStubs.BAD_DESCRIPTION -> ClagStubs.BAD_DESCRIPTION
     OrderRequestDebugStubs.BAD_SPECIAL_REQUIREMENTS -> ClagStubs.BAD_SPECIAL_REQUIREMENTS
     OrderRequestDebugStubs.BAD_ADDRESS -> ClagStubs.BAD_ADDRESS
-    OrderRequestDebugStubs.BAD_SEARCH_CLEANING_TYPE -> ClagStubs.BAD_SEARCH_CLEANING_TYPE
-    OrderRequestDebugStubs.BAD_SEARCH_RADIUS -> ClagStubs.BAD_SEARCH_RADIUS
-    OrderRequestDebugStubs.BAD_DATE_RANGE -> ClagStubs.BAD_DATE_RANGE
+    OrderRequestDebugStubs.BAD_SEARCH_STRING -> ClagStubs.BAD_SEARCH_STRING
     OrderRequestDebugStubs.ORDER_NOT_FOUND -> ClagStubs.ORDER_NOT_FOUND
     OrderRequestDebugStubs.ORDER_ALREADY_PUBLISHED -> ClagStubs.ORDER_ALREADY_PUBLISHED
     OrderRequestDebugStubs.ORDER_ALREADY_RESPONDED -> ClagStubs.ORDER_ALREADY_RESPONDED
@@ -168,17 +165,7 @@ private fun CleaningType?.toInternal(): ClagCleaningType = when (this) {
 }
 
 private fun OrderSearchFilter?.toInternal(): ClagOrderFilter = ClagOrderFilter(
-    cleaningType = this?.cleaningType?.toInternal() ?: ClagCleaningType.NONE,
-    dateRange = ClagDateRange(
-        start = this?.dateRange?.start?.toInstant() ?: Instant.NONE,
-        end = this?.dateRange?.end?.toInstant() ?: Instant.NONE
-    ),
-    locationRange = ClagLocationRange(
-        city = this?.locationRange?.city ?: "",
-        street = this?.locationRange?.street ?: "",
-        house = this?.locationRange?.house ?: "",
-        radius = this?.locationRange?.radius ?: 0.0
-    )
+    searchString = this?.searchString ?: ""
 )
 
 private fun OrderAddress?.toInternal(): ClagAddress = ClagAddress(

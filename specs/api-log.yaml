@@ -44,8 +44,6 @@ components:
             - publish
             - respond
             - search
-            - init
-            - finish
         requestOrder:
           $ref: '#/components/schemas/OrderLog'
         requestFilter:
@@ -123,26 +121,10 @@ components:
     OrderFilterLog:
       title: Модель лога фильтра
       properties:
-        cleaningType:
+        searchString:
           type: string
-        dateRange:
-          type: object
-          properties:
-            start:
-              type: string
-            end:
-              type: string
-        locationRange:
-          type: object
-          properties:
-            city:
-              type: string
-            street:
-              type: string
-            house:
-              type: string
-            radius:
-              type: number
+        customerId:
+          type: string
             
     ErrorLogModel:
       title: Модель лога для ошибки

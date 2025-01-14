@@ -5,7 +5,6 @@ import ru.otus.otuskotlin.cleaningaggregator.api.log.models.*
 import ru.otus.otuskotlin.cleaningaggregator.common.ClagContext
 import ru.otus.otuskotlin.cleaningaggregator.common.models.*
 import ru.otus.otuskotlin.cleaningaggregator.common.NONE
-import ru.otus.otuskotlin.cleaningaggregator.common.models.filter.*
 
 fun ClagContext.toLog(logId: String) = CommonLogModel(
     messageTime = Clock.System.now().toString(),
@@ -28,9 +27,8 @@ private fun ClagContext.toClagLog(): ClagOrderLogModel? {
 }
 
 private fun ClagOrderFilter.toLog() = OrderFilterLog(
-    cleaningType = cleaningType.takeIf { it != ClagCleaningType.NONE }?.name,
-    dateRange = dateRange.takeIf { it != ClagDateRange() }?.toLog(),
-    locationRange = locationRange.takeIf { it != ClagLocationRange() }?.toLog(),
+    searchString = searchString.takeIf { it.isNotBlank() },
+    customerId = customerId.takeIf { it != ClagCustomerId.NONE }?.asString()
 )
 
 private fun ClagOrder.toLog() = OrderLog(
@@ -76,16 +74,4 @@ private fun ClagError.toLog() = ErrorLogModel(
     field = field.takeIf { it.isNotBlank() },
     code = code.takeIf { it.isNotBlank() },
     level = level.name,
-)
-
-private fun ClagDateRange.toLog() = OrderFilterLogDateRange(
-    start = start.takeIf { it != Instant.NONE }?.toString(),
-    end = end.takeIf { it != Instant.NONE }?.toString(),
-)
-
-private fun ClagLocationRange.toLog() = OrderFilterLogLocationRange(
-    city = city.takeIf { it.isNotBlank() },
-    street = street.takeIf { it.isNotBlank() },
-    house = house.takeIf { it.isNotBlank() },
-    radius = radius.takeIf { it >= 0.0 },
 )
