@@ -9,6 +9,9 @@ binaryCompabilityValidator = "0.13.2"
 
 bignum = "0.3.10"
 
+# Docker
+muschko = "9.4.0"
+
 logback = "1.5.3"
 logback-appenders = "1.8.8"
 logback-logstash = "7.4"
@@ -33,12 +36,16 @@ coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", ve
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "coroutines" }
 coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "coroutines" }
+kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version = "0.23.2" }
 
 # Spring
 spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 spring-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
 spring-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version = "2.3.0" }
 spring-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+
+# Message Queues
+kafka-client = { module = "org.apache.kafka:kafka-clients", version = "3.7.0" }
 
 # Testing
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version = "5.2.1" }
@@ -60,3 +67,7 @@ kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependencies = { id = "io.spring.dependency-management", version = "1.1.4" }
 spring-kotlin = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+
+# Docker
+muschko-remote = { id = "com.bmuschko.docker-remote-api", version.ref = "muschko" }
+muschko-java = { id = "com.bmuschko.docker-java-application", version.ref = "muschko" }
